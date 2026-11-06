@@ -257,49 +257,196 @@ to{opacity:1;text-shadow:0 0 10px var(--c1),0 0 20px var(--c1);}}
     } catch(e) {}
   })();
 </script>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Chakra+Petch:wght@500;600;700&display=swap" rel="stylesheet"/>
+<style>/* ===== PF HERO ===== */
+#pf-hero{--bg:#050409;--pu:#9b30ff;--pu2:#c084fc;--gn:#7CFF2E;--gn2:#4ade80;--ink:#f1f1f4;--mute:rgba(230,230,240,.62)}
+
+/* ================= HERO ================= */
+#pf-hero{position:relative;height:100vh;min-height:640px;overflow:hidden;isolation:isolate}
+
+/* --- scene: the real artwork, animated --- */
+/* the stage always covers the hero, keeping the 2400x1340 artwork's proportions so clip coordinates stay exact */
+.pfh-stage{position:absolute;left:50%;top:50%;width:max(100%,calc(100vh * 1.791));aspect-ratio:2400/1340;transform:translate(-50%,-50%)}
+.pfh-scene{position:absolute;inset:0;transform-origin:30% 80%;animation:pfh-pfh-sway 7s ease-in-out infinite;will-change:transform}
+@keyframes pfh-sway{0%,100%{transform:translateY(0) rotate(0deg) scale(1.03)}50%{transform:translateY(-8px) rotate(-.4deg) scale(1.035)}}
+.pfh-scene img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;animation:pfh-pfh-push 40s ease-in-out infinite alternate}
+@keyframes pfh-push{to{transform:scale(1.05) translateX(-1%)}}
+/* flag & water clones with animated displacement (coordinates are % of the artwork) */
+.pfh-flag{filter:url(#flagWave);clip-path:inset(6% 45% 59% 31.5%);
+  -webkit-mask:linear-gradient(to right,transparent 0 33%,#000 40%);mask:linear-gradient(to right,transparent 0 33%,#000 40%)}
+.pfh-flag2{filter:url(#flagWave2);clip-path:inset(51% 41% 40.5% 50.2%)}
+.pfh-water{filter:url(#waterWave);
+  clip-path:polygon(0 66%,9% 64%,10% 88%,22% 87%,45% 82%,46% 66%,100% 64%,100% 100%,0 100%);
+  -webkit-mask:linear-gradient(to bottom,transparent 61%,#000 68%);mask:linear-gradient(to bottom,transparent 61%,#000 68%)}
+#pfh-spray{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+
+/* darken toward the right where the copy lives */
+.pfh-fade{position:absolute;inset:0;z-index:2;pointer-events:none;
+  background:
+   linear-gradient(90deg,rgba(5,4,9,0) 0%,rgba(5,4,9,0) 45%,rgba(5,4,9,.55) 62%,rgba(5,4,9,.82) 85%),
+   linear-gradient(0deg,var(--bg) 0%,rgba(5,4,9,0) 20%),
+   linear-gradient(180deg,rgba(5,4,9,.7) 0%,rgba(5,4,9,0) 16%)}
+/* drifting smoke / fog + purple-green war glow */
+.pfh-fog{position:absolute;inset:-10%;z-index:3;pointer-events:none;mix-blend-mode:screen;opacity:.55;
+  background:radial-gradient(30% 18% at 20% 70%,rgba(200,200,220,.18),transparent 70%),radial-gradient(25% 15% at 60% 60%,rgba(200,200,220,.12),transparent 70%),
+             radial-gradient(40% 30% at 85% 30%,rgba(155,48,255,.28),transparent 70%),radial-gradient(35% 25% at 70% 95%,rgba(124,255,46,.12),transparent 70%);
+  animation:pfh-pfh-fog 30s linear infinite alternate}
+@keyframes pfh-fog{to{transform:translateX(6%) translateY(-2%)}}
+.pfh-scan{position:absolute;inset:0;z-index:4;pointer-events:none;opacity:.12;
+  background:repeating-linear-gradient(0deg,rgba(255,255,255,.18) 0 1px,transparent 1px 3px)}
+.pfh-vignette{position:absolute;inset:0;z-index:4;pointer-events:none;box-shadow:inset 0 0 200px 40px rgba(0,0,0,.85)}
+#pfh-blast{position:absolute;inset:0;z-index:3;pointer-events:none;mix-blend-mode:screen}
+
+/* helicopter crossing */
+.pfh-heli{position:absolute;z-index:3;top:22%;left:-8%;width:70px;opacity:.85;animation:pfh-pfh-heli 26s linear infinite}
+.pfh-heli .pfh-rot{transform-origin:35px 9px;animation:pfh-pfh-rot .12s linear infinite}
+.pfh-heli .pfh-blink{animation:pfh-pfh-blink 1s steps(1) infinite}
+@keyframes pfh-heli{0%{transform:translate(0,0)}100%{transform:translate(120vw,6vh)}}
+@keyframes pfh-rot{50%{transform:scaleX(.15)}}
+@keyframes pfh-blink{50%{opacity:0}}
+
+/* ================= HUD ================= */
+.pfh-hud{position:absolute;z-index:6;font-family:'Chakra Petch';font-size:11px;letter-spacing:.14em;text-transform:uppercase}
+.pfh-corner{position:absolute;width:28px;height:28px;border-color:var(--gn);border-style:solid;opacity:.7}
+.pfh-c1{top:86px;left:22px;border-width:2px 0 0 2px}.pfh-c2{top:86px;right:22px;border-width:2px 2px 0 0}
+.pfh-c3{bottom:22px;left:22px;border-width:0 0 2px 2px}.pfh-c4{bottom:22px;right:22px;border-width:0 2px 2px 0}
+.pfh-feed{top:100px;right:44px;padding:12px 16px;min-width:220px;background:rgba(5,4,9,.55);backdrop-filter:blur(8px);
+  border:1px solid rgba(124,255,46,.45);clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,14px 100%,0 calc(100% - 14px))}
+.pfh-feed b{color:var(--gn);font-weight:700}.pfh-feed p{color:var(--mute);margin-top:6px;line-height:1.5}
+.pfh-feed i{display:inline-block;width:8px;height:8px;border-radius:50%;background:#ff3b3b;box-shadow:0 0 10px #ff3b3b;margin-right:8px;animation:pfh-pfh-blink 1.2s steps(1) infinite}
+.pfh-coords{bottom:40px;left:48px;color:var(--mute)}
+.pfh-coords span{color:var(--gn)}
+.pfh-reticle{position:absolute;z-index:5;left:28%;top:56%;width:110px;height:110px;margin:-55px;pointer-events:none;opacity:.55;animation:pfh-pfh-track 9s ease-in-out infinite}
+@keyframes pfh-track{50%{transform:translate(12px,-6px)}}
+.pfh-reticle:before,.pfh-reticle:after{content:"";position:absolute;inset:0;border:1px solid var(--gn);border-radius:50%}
+.pfh-reticle:after{inset:30%;border-color:var(--pu2)}
+.pfh-reticle span{position:absolute;left:50%;top:-14px;bottom:-14px;width:1px;background:linear-gradient(var(--gn) 20%,transparent 20% 80%,var(--gn) 80%)}
+.pfh-reticle span+span{transform:rotate(90deg)}
+.pfh-reticle em{position:absolute;left:115%;top:10%;font:600 10px 'Chakra Petch';letter-spacing:.15em;color:var(--gn);white-space:nowrap;font-style:normal}
+
+/* ================= NAV ================= */
+.pfh-nav{position:absolute;z-index:10;top:18px;left:22px;right:22px;display:flex;align-items:center;gap:14px;padding:8px 10px 8px 12px;
+  background:rgba(8,6,14,.55);backdrop-filter:blur(14px) saturate(160%);border:1px solid rgba(255,255,255,.1);
+  clip-path:polygon(0 0,calc(100% - 18px) 0,100% 18px,100% 100%,18px 100%,0 calc(100% - 18px))}
+.pfh-brand{display:flex;align-items:center;gap:10px;font-family:'Chakra Petch';font-weight:700;letter-spacing:.3em;font-size:13px}
+.pfh-brand img{width:38px;height:38px;object-fit:cover;mix-blend-mode:lighten;border-radius:6px}
+.pfh-brand b{color:var(--gn)}
+.pfh-sp{flex:1}
+.pfh-ca{font:600 12px 'Chakra Petch';letter-spacing:.06em;color:var(--mute);padding:9px 14px;border:1px solid rgba(155,48,255,.45);background:rgba(155,48,255,.08);cursor:pointer}
+.pfh-ca:hover{color:#fff;border-color:var(--pu2)}
+.pfh-nbtn{font:700 12px 'Chakra Petch';letter-spacing:.18em;text-transform:uppercase;color:#fff;text-decoration:none;padding:10px 16px;border:1px solid rgba(255,255,255,.15)}
+.pfh-nbtn:hover{border-color:var(--gn);color:var(--gn)}
+
+/* ================= COPY ================= */
+.pfh-copy{position:absolute;z-index:8;right:5vw;top:50%;transform:translateY(-44%);width:min(600px,42vw);text-align:center}
+.pfh-pre{font-family:'Chakra Petch';font-weight:700;letter-spacing:.7em;font-size:clamp(16px,1.7vw,26px);display:flex;align-items:center;gap:18px;justify-content:center}
+.pfh-pre:before,.pfh-pre:after{content:"";height:2px;flex:1;background:linear-gradient(90deg,transparent,rgba(255,255,255,.7))}
+.pfh-pre:after{background:linear-gradient(270deg,transparent,rgba(255,255,255,.7))}
+.pfh-ttl{font-family:'Anton',sans-serif;font-size:clamp(70px,10.5vw,168px);line-height:.92;letter-spacing:.01em;color:#ececec;margin:.08em 0 .05em;
+  text-shadow:0 6px 0 rgba(0,0,0,.35);
+  -webkit-mask-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='400'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='.14' numOctaves='3' seed='7'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 -10 7'/></filter><rect width='100%' height='100%' filter='url(%23g)'/></svg>");
+  mask-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='400'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='.14' numOctaves='3' seed='7'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 -10 7'/></filter><rect width='100%' height='100%' filter='url(%23g)'/></svg>")}
+.pfh-strait{font-family:'Chakra Petch';font-weight:700;color:var(--gn);letter-spacing:.12em;font-size:clamp(18px,2.4vw,38px);display:flex;align-items:center;gap:16px;justify-content:center;text-shadow:0 0 22px rgba(124,255,46,.45)}
+.pfh-strait:before,.pfh-strait:after{content:"";height:3px;flex:1;max-width:90px;background:var(--gn);box-shadow:0 0 12px var(--gn)}
+.pfh-tag{margin-top:12px;font:600 clamp(13px,1.15vw,17px) 'Chakra Petch';letter-spacing:.14em;color:var(--mute)}
+.pfh-tag em{font-style:normal;color:var(--pu2)}
+.pfh-cta{display:flex;gap:14px;justify-content:center;margin-top:30px;flex-wrap:wrap}
+.pfh-btn{position:relative;overflow:hidden;font:700 14px 'Chakra Petch';letter-spacing:.2em;text-transform:uppercase;text-decoration:none;color:#06070a;
+  padding:16px 30px;background:var(--gn);box-shadow:0 0 28px -4px var(--gn);cursor:pointer;border:0;
+  clip-path:polygon(12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%,0 12px);transition:transform .2s,box-shadow .2s}
+.pfh-btn:hover{transform:translateY(-2px);box-shadow:0 0 44px 0 var(--gn)}
+.pfh-btn:after{content:"";position:absolute;top:0;left:-70%;width:45%;height:100%;transform:skewX(-20deg);background:linear-gradient(90deg,transparent,rgba(255,255,255,.65),transparent);animation:pfh-pfh-shine 3.2s ease-in-out infinite}
+@keyframes pfh-shine{60%,100%{left:140%}}
+.pfh-btn.pfh-pu{background:transparent;color:#fff;box-shadow:inset 0 0 0 2px var(--pu),0 0 26px -6px var(--pu)}
+.pfh-btn.pfh-pu:hover{background:rgba(155,48,255,.18)}
+.pfh-powered{display:flex;align-items:center;justify-content:center;gap:16px;margin-top:34px;padding:12px 22px;background:rgba(0,0,0,.55);
+  border-top:2px solid var(--gn);border-bottom:2px solid var(--pu);font:700 14px 'Chakra Petch';letter-spacing:.18em}
+.pfh-powered strong{font-family:'Anton';font-size:28px;letter-spacing:.06em;font-weight:400}
+.pfh-powered strong span:first-child{color:var(--pu)}.pfh-powered strong span+span{color:var(--gn)}
+
+/* ticker */
+.pfh-ticker{position:absolute;z-index:9;left:0;right:0;bottom:0;height:38px;display:flex;align-items:center;overflow:hidden;
+  background:linear-gradient(90deg,rgba(155,48,255,.25),rgba(124,255,46,.15));border-top:1px solid rgba(255,255,255,.1);font:600 13px 'Chakra Petch';letter-spacing:.2em}
+.pfh-ticker div{display:flex;gap:48px;white-space:nowrap;animation:pfh-pfh-tick 40s linear infinite;padding-left:48px}
+.pfh-ticker b{color:var(--gn)} .pfh-ticker u{color:var(--pu2);text-decoration:none}
+@keyframes pfh-tick{to{transform:translateX(-50%)}}
+
+@media(max-width:900px){
+  .pfh-stage{width:230vw;top:50px;transform:translate(-25%,0)}
+  .pfh-copy .pfh-ttl{font-size:64px}.pfh-powered{display:none}.pfh-cta{margin-top:18px}.pfh-btn{padding:14px 22px}
+  .pfh-copy{bottom:52px}
+  .pfh-nbtn{display:none}
+  .pfh-fade{background:linear-gradient(0deg,var(--bg) 8%,rgba(5,4,9,.55) 45%,rgba(5,4,9,.2) 70%,rgba(5,4,9,.7) 100%)}
+  .pfh-copy{left:50%;right:auto;top:auto;bottom:60px;transform:translateX(-50%);width:92vw}
+  .pfh-feed,.pfh-reticle,.pfh-coords{display:none}.pfh-ca{display:none}
+}
+@media(prefers-reduced-motion:reduce){#pf-hero *{animation:none!important}}
+
+/* landing integration */
+#pf-hero .games-dd-menu{z-index:30}
+#pf-hero .pfh-nav .ca-chip{margin:0}
+#pf-hero a{text-decoration:none}
+.pfh-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+</style>
 </head>
 <body>
 
 <div class="bg-wrap"></div>
 
-<!-- HEADER -->
-<header>
-  <div class="hinner">
-    <div>
-      <div class="logo-t">PROJECT FREEDOM</div>
-      <div class="logo-s">STRAIT OF HORMUZ</div>
-    </div>
-    <nav class="dn">
-      <div class="games-dd" id="gamesDd">
-        <button class="games-dd-btn" onclick="toggleDD()">🎮 Online Games &nbsp;▾</button>
-        <div class="games-dd-menu" id="gamesDdMenu">
-          <a href="https://dgn-battleship.vercel.app/">🚢 Battleship War</a>
-          <a href="https://freedom-football-fantasy.vercel.app/">⚽ Football Fantasy</a>
-          <a href="https://freedom-betting.vercel.app/">🎲 Freedom Bets</a>
-          <a href="https://freedom-associations.vercel.app/">🧠 Associations</a>
-          <a href="https://freedom-texas-hold-em.vercel.app/">🃏 Texas Hold'em</a>
-          <a href="https://freedom-ludo.vercel.app">🎲 Freedom Ludo</a>
-          <a href="#arcade">🕹️ Arcade</a>
-        </div>
-      </div>
-      <div class="ca-chip" id="caChip" onclick="copyCA()" title="Click to copy contract address">
-        <span class="ca-label">CA</span>
-        <span class="ca-addr" id="caAddr">DGNPs...AJrd</span>
-        <span class="ca-copy" id="caCopy">⧉</span>
-      </div>
-      <a href="https://dexscreener.com/solana/DGNPSiTrX5xnKcpVKBaXUsWBZbFuA2cJcb7fUJmoAJrd" class="dex">📈 DEXscreener</a>
-      <a href="https://t.me/DGNprojectfreedom" class="tgbtn">✈️ Community</a>
-    </nav>
-  </div>
-</header>
+<!-- HERO: animated Strait of Hormuz scene -->
 
-<!-- HERO -->
-<section class="hero">
-  <div class="hero-eye">⚡ Powered by $FREEDOM · Solana</div>
-  <h1 class="hero-title">PROJECT<br>FREEDOM</h1>
-  <div class="hero-sub">STRAIT OF HORMUZ</div>
-  <div class="ndiv"></div>
-  <p class="hero-tag">SECURE THE ROUTES. SECURE THE FUTURE.</p>
+<section id="pf-hero" aria-label="Project Freedom — Strait of Hormuz">
+  <div class="pfh-stage"><div class="pfh-scene" id="pfh-scene">
+    <img src="/assets/pf/strait-hero.jpg" srcset="/assets/pf/strait-hero-mobile.jpg 1200w, /assets/pf/strait-hero.jpg 2400w" sizes="(max-width:900px) 1200px, 2400px" alt="Project Freedom warship 77 sailing through the Strait of Hormuz"/>
+    <img class="pfh-water" src="/assets/pf/strait-hero.jpg" alt=""/>
+    <img class="pfh-flag" src="/assets/pf/strait-hero.jpg" alt=""/>
+    <img class="pfh-flag2" src="/assets/pf/strait-hero.jpg" alt=""/>
+    <canvas id="pfh-spray"></canvas>
+  </div></div>
+
+  <svg class="pfh-heli" viewBox="0 0 70 30"><g fill="#0b0b10"><rect class="pfh-rot" x="2" y="7" width="66" height="2" rx="1"/><rect x="33" y="8" width="3" height="5"/>
+    <path d="M18 14c4-3 18-3 22 0l6 5H20c-4 0-6-2-2-5z"/><path d="M45 15h18l3-4h2l-2 7H46z"/><rect x="22" y="21" width="20" height="1.5"/></g>
+    <circle class="pfh-blink" cx="20" cy="17" r="1.4" fill="#ff3b3b"/></svg>
+
+  <div class="pfh-fade"></div><div class="pfh-fog"></div><div id="pfh-blast"></div><div class="pfh-scan"></div><div class="pfh-vignette"></div>
+
+  <div class="pfh-reticle"><span></span><span></span><em>TGT · DDG-77 · LOCKED</em></div>
+  <i class="pfh-corner pfh-c1"></i><i class="pfh-corner pfh-c2"></i><i class="pfh-corner pfh-c3"></i><i class="pfh-corner pfh-c4"></i>
+  <div class="pfh-hud pfh-feed"><div><i></i><b>LIVE FEED</b></div><p>Location: Strait of Hormuz<br/>Status: <b>Mission active</b><br/>Blockade: <b style="color:#ff6b6b">Contested</b></p></div>
+  <div class="pfh-hud pfh-coords">LAT <span>26°34'N</span> · LON <span>56°15'E</span> · HDG <span id="pfh-hdg">092</span>° · SPD <span id="pfh-spd">18.4</span> KN</div>
+
+  <div class="pfh-nav">
+    <div class="pfh-brand"><img src="/assets/pf/skull.jpg" alt=""/>PROJECT <b>FREEDOM</b></div>
+    <div class="pfh-sp"></div>
+    <div class="games-dd" id="gamesDd">
+      <button class="games-dd-btn" onclick="toggleDD()">🎮 Online Games &nbsp;▾</button>
+      <div class="games-dd-menu" id="gamesDdMenu">
+        <a href="https://dgn-battleship.vercel.app/">🚢 Battleship War</a>
+        <a href="https://freedom-football-fantasy.vercel.app/">⚽ Football Fantasy</a>
+        <a href="https://freedom-betting.vercel.app/">🎲 Freedom Bets</a>
+        <a href="https://freedom-associations.vercel.app/">🧠 Associations</a>
+        <a href="https://freedom-texas-hold-em.vercel.app/">🃏 Texas Hold'em</a>
+        <a href="https://freedom-ludo.vercel.app">🎲 Freedom Ludo</a>
+        <a href="#arcade">🕹️ Arcade</a>
+      </div>
+    </div>
+    <a class="pfh-nbtn" href="https://dexscreener.com/solana/DGNPSiTrX5xnKcpVKBaXUsWBZbFuA2cJcb7fUJmoAJrd" target="_blank" rel="noopener">DEXscreener</a>
+    <a class="pfh-nbtn" href="https://t.me/DGNprojectfreedom" target="_blank" rel="noopener">Telegram</a>
+    <div class="ca-chip pfh-ca" id="caChip" onclick="copyCA()" title="Click to copy contract address">
+      <span class="ca-label">CA</span><span class="ca-addr" id="caAddr">DGNPs...AJrd</span><span class="ca-copy" id="caCopy">⧉</span>
+    </div>
+  </div>
+
+  <div class="pfh-copy">
+    <div class="pfh-pre">PROJECT</div>
+    <h1 class="pfh-ttl"><span class="pfh-sr">Project </span>FREEDOM</h1>
+    <div class="pfh-strait">STRAIT OF HORMUZ</div>
+    <p class="pfh-tag">CONTROL THE STRAITS. <em>SECURE THE FUTURE.</em></p>
+    <div class="pfh-cta"><a class="pfh-btn" href="#gamesgrid">▶ Enter the strait</a><a class="pfh-btn pfh-pu" href="https://dexscreener.com/solana/DGNPSiTrX5xnKcpVKBaXUsWBZbFuA2cJcb7fUJmoAJrd" target="_blank" rel="noopener">Buy $FREEDOM</a></div>
+    <div class="pfh-powered">POWERED BY <strong><span>DEGEN</span><span>SAFE.FUN</span></strong></div>
+  </div>
+
+  <div class="pfh-ticker"><div id="pfh-tk"></div></div>
 </section>
 
 <!-- STATS -->
@@ -621,5 +768,93 @@ function copyCA(){
 </script>
 
 <div id="vc" style="position:fixed;bottom:18px;right:22px;font-family:'Orbitron',sans-serif;font-size:11px;color:rgba(255,255,255,0.15);letter-spacing:3px;z-index:9999;user-select:none;pointer-events:none;"><span id="vn">—</span></div>
+<script>(function(){
+// ticker
+const items=['<b>$FREEDOM</b> LIVE ON SOLANA','6 GAMES · ONE TOKEN','<u>BUILT BY THE TRENCHES</u> FOR THE TRENCHES','LP <b>LOCKED</b> · 0% DEV','5% DAILY <b>AUTO-BURN</b>','STRAIT OF HORMUZ · <u>MISSION ACTIVE</u>'];
+document.getElementById('pfh-tk').innerHTML=(items.map(t=>'<span>◆ '+t+'</span>').join('')).repeat(2);
+
+// live-ish HUD numbers
+setInterval(()=>{document.getElementById('pfh-hdg').textContent=String(90+Math.round(Math.random()*4)).padStart(3,'0');
+ document.getElementById('pfh-spd').textContent=(18+Math.random()).toFixed(1)},1400);
+
+// ===================== HOLLYWOOD FX ENGINE =====================
+// Drawn on a canvas inside the scene, in artwork coordinates (0..1), so every blast sits on the right spot and sways with the ship.
+const stage=document.querySelector('.pfh-stage'),sc=document.getElementById('pfh-scene'),cv=document.getElementById('pfh-spray'),cx=cv.getContext('2d'),blast=document.getElementById('pfh-blast');
+let W=1,H=1;const DPR=Math.min(devicePixelRatio||1,1.5);
+function rs(){W=sc.clientWidth;H=sc.clientHeight;cv.width=W*DPR;cv.height=H*DPR;cx.setTransform(DPR,0,0,DPR,0,0)}rs();addEventListener('resize',rs);
+const R=Math.random,rr=(a,b)=>a+R()*(b-a),U=()=>W/100;
+const S=[],A=[],M=[];let shakeP=0,light=0,lx=.5,ly=.5,lc='255,150,60';
+
+function smoke(x,y,s,o={}){S.push({x,y,r:s*rr(.6,1),g:s*rr(.006,.014),vx:rr(-.1,.3)+(o.vx||0),vy:rr(-.35,-.08)+(o.vy||0),a:o.a??rr(.35,.6),d:o.d??rr(25,55),l:1,dl:o.dl??rr(.002,.004)})}
+function fire(x,y,s){A.push({t:'f',x,y,r:s*rr(.5,1),vx:rr(-.6,.6),vy:rr(-1.1,-.2),l:1,dl:rr(.013,.028)})}
+function spark(x,y,sp,c){const a=R()*6.283,v=rr(.3,1)*sp;A.push({t:'s',x,y,px:x,py:y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-sp*.6,l:1,dl:rr(.01,.022),c:c||'255,200,110'})}
+function flash(x,y,s,dl){A.push({t:'x',x,y,r:s,l:1,dl:dl||.06})}
+function lightUp(x,y,amt,c){light=Math.max(light,amt);lx=x;ly=y;lc=c||'255,150,60'}
+function shake(a){shakeP=Math.max(shakeP,a)}
+
+// fireball + shrapnel + rolling smoke (+ water column when it hits the sea)
+function explode(nx,ny,size){const x=nx*W,y=ny*H,u=U()*size*1.6;
+  flash(x,y,u*11,.045);flash(x,y,u*4,.025);lightUp(nx,ny,.8*Math.min(size,1.6));shake(4*size);
+  for(let i=0;i<18*size;i++)fire(x+rr(-u,u),y+rr(-u,u*.5),u*rr(1.4,3));
+  for(let i=0;i<34*size;i++)spark(x,y,u*rr(.25,.6));
+  for(let i=0;i<4;i++)spark(x,y,u*.9,'255,240,200');
+  setTimeout(()=>{for(let i=0;i<14*size;i++)smoke(x+rr(-u*2,u*2),y+rr(-u*2,u*.5),u*rr(2.5,5),{d:rr(15,40)})},120);
+  if(ny>.6)for(let i=0;i<10;i++)A.push({t:'w',x:x+rr(-u,u),y,vy:-rr(1.2,2.6)*u*.35,h:0,l:1,dl:rr(.012,.02),w:u*rr(.6,1.4)});
+}
+// projectile along a quadratic arc: shell (tracer), missile (smoke trail), tracer (MG burst)
+function launch(n0,n1,o){M.push({x0:n0[0]*W,y0:n0[1]*H,x1:n1[0]*W,y1:n1[1]*H,cx:o.cx*W,cy:o.cy*H,t:0,dur:o.dur,type:o.type,end:o.end,lx:n0[0]*W,ly:n0[1]*H})}
+function q(a,c,b,t){return(1-t)*(1-t)*a+2*(1-t)*t*c+t*t*b}
+
+// ---- scripted battle ----
+const GUN=[.205,.6],VLS=[.235,.565],CIWS=[.31,.47];
+const TARGETS=[[.05,.5],[.1,.42],[.13,.55],[.56,.585],[.6,.6],[.52,.6],[.4,.74],[.46,.7],[.3,.82]];
+const pick=()=>TARGETS[Math.floor(R()*TARGETS.length)];
+function mainGun(){const x=GUN[0]*W,y=GUN[1]*H,u=U();
+  flash(x-u*1.2,y-u*.4,u*7,.09);for(let i=0;i<10;i++)fire(x-u*rr(.5,2.5),y-u*rr(0,.8),u*rr(.8,1.6));
+  for(let i=0;i<10;i++)smoke(x-u*rr(1,4),y-u*rr(0,1.5),u*rr(1.5,3),{d:rr(140,190),a:.4,vx:-.4});
+  lightUp(GUN[0],GUN[1],.75,'255,190,110');shake(9);
+  const t=pick();launch(GUN,t,{type:'shell',dur:rr(55,75),cx:(GUN[0]+t[0])/2,cy:.32,end:()=>explode(t[0],t[1],rr(.9,1.3))});}
+function missile(){const t=R()<.6?[rr(.04,.12),rr(.42,.55)]:[rr(.52,.6),rr(.57,.6)];const x=VLS[0]*W,y=VLS[1]*H,u=U();
+  flash(x,y,u*5,.05);lightUp(VLS[0],VLS[1],.5,'255,220,160');shake(5);
+  for(let i=0;i<14;i++)smoke(x+rr(-u,u),y,u*rr(1.5,3),{d:rr(150,200),a:.5,vy:-.2});
+  launch(VLS,t,{type:'missile',dur:rr(150,190),cx:(VLS[0]+t[0])/2,cy:-.2,end:()=>explode(t[0],t[1],1.8)});}
+function tracerBurst(){const src=R()<.5?[.03,rr(.38,.5)]:CIWS;const tx=rr(.15,.55),ty=rr(.08,.3);
+  for(let i=0;i<14;i++)setTimeout(()=>launch(src,[tx+rr(-.03,.03),ty+rr(-.03,.03)],{type:'tracer',dur:rr(35,45),cx:(src[0]+tx)/2,cy:Math.min(src[1],ty)-.05}),i*70);}
+function distant(){const t=pick();explode(t[0],t[1],rr(.45,.85))}
+function loop(fn,a,b){(function go(){setTimeout(()=>{if(!document.hidden)fn();go()},rr(a,b))})()}
+setTimeout(()=>explode(.56,.585,1.2),700);setTimeout(mainGun,2200);setTimeout(missile,4200);
+loop(distant,2200,4200);loop(mainGun,6500,9500);loop(missile,11000,15000);loop(tracerBurst,3000,5500);
+// bow mist: soft, wide haze (no dots)
+setInterval(()=>{const u=U();smoke(rr(.04,.14)*W,rr(.76,.82)*H,u*rr(2,4),{d:235,a:rr(.1,.18),dl:.012,vx:-.6,vy:-.15})},90);
+
+function draw(){cx.clearRect(0,0,W,H);
+  for(const p of S){p.x+=p.vx;p.y+=p.vy;p.r+=p.g;p.l-=p.dl;if(p.l<=0)continue;
+    const g=cx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r),d=p.d|0,a=p.a*p.l;
+    g.addColorStop(0,`rgba(${d},${d},${d+4},${a})`);g.addColorStop(1,`rgba(${d},${d},${d},0)`);cx.fillStyle=g;cx.beginPath();cx.arc(p.x,p.y,p.r,0,6.283);cx.fill()}
+  for(let i=S.length-1;i>=0;i--)if(S[i].l<=0)S.splice(i,1);
+  cx.globalCompositeOperation='lighter';
+  for(const m of M){m.t++;const k=Math.min(m.t/m.dur,1),e=m.type==='missile'?k*k:k;
+    const x=q(m.x0,m.cx,m.x1,e),y=q(m.y0,m.cy,m.y1,e);
+    if(m.type==='missile'){const u=U();for(let i=0;i<2;i++)S.push({x:x+rr(-2,2),y:y+rr(-2,2),r:u*rr(.5,.9),g:u*.025,vx:rr(-.1,.1),vy:rr(-.05,.1),a:.45,d:rr(170,210),l:1,dl:.006});
+      fire(x,y,u*1.1);cx.strokeStyle='rgba(255,230,180,.9)';cx.lineWidth=2.5;cx.beginPath();cx.moveTo(m.lx,m.ly);cx.lineTo(x,y);cx.stroke();
+      const g=cx.createRadialGradient(x,y,0,x,y,u*2.2);g.addColorStop(0,'rgba(255,250,230,1)');g.addColorStop(1,'rgba(255,140,40,0)');cx.fillStyle=g;cx.beginPath();cx.arc(x,y,u*2.2,0,6.283);cx.fill()}
+    else{const tl=m.type==='shell'?2:3;cx.strokeStyle=m.type==='shell'?'rgba(255,220,150,1)':'rgba(255,170,70,.95)';cx.lineWidth=m.type==='shell'?3:1.6;cx.beginPath();cx.moveTo(m.lx-(x-m.lx)*tl,m.ly-(y-m.ly)*tl);cx.lineTo(x,y);cx.stroke()}
+    m.lx=x;m.ly=y;if(k>=1){m.done=1;m.end&&m.end()}}
+  for(let i=M.length-1;i>=0;i--)if(M[i].done)M.splice(i,1);
+  for(const p of A){p.l-=p.dl;if(p.l<=0)continue;
+    if(p.t==='f'){p.x+=p.vx;p.y+=p.vy;const r=p.r*(1.2-p.l*.4),g=cx.createRadialGradient(p.x,p.y,0,p.x,p.y,r);
+      g.addColorStop(0,`rgba(255,245,210,${p.l})`);g.addColorStop(.35,`rgba(255,150,40,${p.l*.8})`);g.addColorStop(1,'rgba(160,30,0,0)');cx.fillStyle=g;cx.beginPath();cx.arc(p.x,p.y,r,0,6.283);cx.fill()}
+    else if(p.t==='s'){p.px=p.x;p.py=p.y;p.x+=p.vx;p.y+=p.vy;p.vy+=.06;p.vx*=.985;cx.strokeStyle=`rgba(${p.c},${p.l})`;cx.lineWidth=1.6;cx.beginPath();cx.moveTo(p.px-(p.x-p.px)*2,p.py-(p.y-p.py)*2);cx.lineTo(p.x,p.y);cx.stroke()}
+    else if(p.t==='x'){const g=cx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r);g.addColorStop(0,`rgba(255,255,240,${p.l})`);g.addColorStop(.3,`rgba(255,170,70,${p.l*.6})`);g.addColorStop(1,'rgba(255,90,0,0)');cx.fillStyle=g;cx.beginPath();cx.arc(p.x,p.y,p.r,0,6.283);cx.fill()}
+    else if(p.t==='w'){p.h-=p.vy;p.vy+=.035;cx.globalCompositeOperation='source-over';const hh=Math.max(p.h,0),g=cx.createLinearGradient(0,p.y-hh,0,p.y);
+      g.addColorStop(0,'rgba(230,235,240,0)');g.addColorStop(.4,`rgba(230,235,240,${p.l*.5})`);g.addColorStop(1,`rgba(255,255,255,${p.l*.7})`);cx.fillStyle=g;cx.fillRect(p.x-p.w/2,p.y-hh,p.w,hh);cx.globalCompositeOperation='lighter'}}
+  for(let i=A.length-1;i>=0;i--)if(A[i].l<=0)A.splice(i,1);
+  cx.globalCompositeOperation='source-over';
+  if(shakeP>.1){stage.style.translate=`${rr(-shakeP,shakeP)}px ${rr(-shakeP,shakeP)}px`;shakeP*=.86}else stage.style.translate='';
+  if(light>.01){const r=cv.getBoundingClientRect(),hx=r.left+lx*r.width,hy=r.top+ly*r.height;
+    blast.style.background=`radial-gradient(circle at ${hx}px ${hy}px, rgba(${lc},${light}) 0%, rgba(${lc},${light*.35}) 22%, transparent 55%)`;light*=.9}else blast.style.background='none';
+  requestAnimationFrame(draw)}
+draw();
+})();</script>
 </body>
 </html>
