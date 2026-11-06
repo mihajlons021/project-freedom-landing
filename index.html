@@ -4,6 +4,26 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Project Freedom — Strait of Hormuz</title>
+<meta name="description" content="Project Freedom ($FREEDOM) — the safest memecoin on Solana, launched on DegenSafe.fun. Play 6 Web3 games: Texas Hold'em, Battleship, Ludo, Associations, Football Fantasy and Freedom Bets."/>
+<link rel="canonical" href="https://www.projectfreedom.fun/"/>
+<meta name="theme-color" content="#05050e"/>
+<link rel="icon" href="/favicon.ico" sizes="any"/>
+<link rel="icon" type="image/png" href="/favicon.png"/>
+<link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
+<meta property="og:type" content="website"/>
+<meta property="og:site_name" content="Project Freedom"/>
+<meta property="og:title" content="Project Freedom — Strait of Hormuz"/>
+<meta property="og:description" content="Project Freedom ($FREEDOM) — the safest memecoin on Solana, launched on DegenSafe.fun. Play 6 Web3 games: Texas Hold'em, Battleship, Ludo, Associations, Football Fantasy and Freedom Bets."/>
+<meta property="og:url" content="https://www.projectfreedom.fun/"/>
+<meta property="og:image" content="https://www.projectfreedom.fun/og-image.jpg"/>
+<meta property="og:image:width" content="1200"/>
+<meta property="og:image:height" content="630"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:site" content="@DGNProject"/>
+<meta name="twitter:title" content="Project Freedom — Strait of Hormuz"/>
+<meta name="twitter:description" content="Project Freedom ($FREEDOM) — the safest memecoin on Solana, launched on DegenSafe.fun. Play 6 Web3 games: Texas Hold'em, Battleship, Ludo, Associations, Football Fantasy and Freedom Bets."/>
+<meta name="twitter:image" content="https://www.projectfreedom.fun/og-image.jpg"/>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"Project Freedom","url":"https://www.projectfreedom.fun/","sameAs":["https://x.com/DGNProject","https://t.me/DGNprojectfreedom"]}</script>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet"/>
 <style>
 :root{--pu:#a855f7;--pu2:#c084fc;--gn:#4ade80;--gn2:#22c55e;}
@@ -540,6 +560,12 @@ function toggleDD(){
   m.classList.toggle('open');
 }
 // Close when clicking outside
+document.addEventListener('click',function(e){
+  var dd=document.getElementById('gamesDd');
+  if(dd&&!dd.contains(e.target)){
+    document.getElementById('gamesDdMenu').classList.remove('open');
+  }
+});
 function openMKModal(){
   var modal=document.getElementById('mk-modal');
   var wrap=document.getElementById('mk-iframe-wrap');
@@ -556,6 +582,8 @@ function closeMKModal(){
   document.getElementById('mk-iframe-wrap').innerHTML='';
 }
 
+const FULL_CA = "DGNPSiTrX5xnKcpVKBaXUsWBZbFuA2cJcb7fUJmoAJrd";
+function copyCA(){
   navigator.clipboard.writeText(FULL_CA).then(function(){
     var chip = document.getElementById('caChip');
     var copy = document.getElementById('caCopy');
