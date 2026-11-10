@@ -135,7 +135,7 @@ footer{position:relative;z-index:10;border-top:1px solid rgba(168,85,247,0.2);ba
   background:rgba(6,6,18,0.97);border:1px solid rgba(168,85,247,0.3);
   border-radius:10px;min-width:210px;overflow:hidden;
   box-shadow:0 8px 32px rgba(0,0,0,0.6),0 0 20px rgba(168,85,247,0.15);
-  backdrop-filter:blur(20px);z-index:200;
+  z-index:200;
 }
 .games-dd-menu.open{display:block;animation:ddIn 0.18s ease;}
 @keyframes ddIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
@@ -258,7 +258,7 @@ to{opacity:1;text-shadow:0 0 10px var(--c1),0 0 20px var(--c1);}}
 #pf-hero{--bg:#050409;--pu:#9b30ff;--pu2:#c084fc;--gn:#7CFF2E;--gn2:#4ade80;--ink:#f1f1f4;--mute:rgba(230,230,240,.62)}
 
 /* ================= HERO ================= */
-#pf-hero{position:relative;height:100vh;min-height:640px;overflow:hidden;isolation:isolate}
+#pf-hero{position:relative;height:100vh;min-height:640px;overflow:hidden;overflow:clip;isolation:isolate}
 
 /* --- scene: the real artwork, animated --- */
 /* the stage always covers the hero, keeping the 2400x1340 artwork's proportions so clip coordinates stay exact */
@@ -322,7 +322,11 @@ to{opacity:1;text-shadow:0 0 10px var(--c1),0 0 20px var(--c1);}}
 
 /* ================= NAV ================= */
 .pfh-nav{position:absolute;z-index:10;top:18px;left:22px;right:22px;display:flex;align-items:center;gap:14px;padding:8px 10px 8px 12px;
-  background:rgba(8,6,14,.84);border:1px solid rgba(255,255,255,.1);
+  isolation:isolate}
+/* the cut-corner glass lives on a background layer: clip-path on the bar itself was hiding the games dropdown */
+.pfh-nav:before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:rgba(8,6,14,.84);
+  clip-path:polygon(0 0,calc(100% - 18px) 0,100% 18px,100% 100%,18px 100%,0 calc(100% - 18px))}
+.pfh-nav:after{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;border:1px solid rgba(255,255,255,.1);
   clip-path:polygon(0 0,calc(100% - 18px) 0,100% 18px,100% 100%,18px 100%,0 calc(100% - 18px))}
 .pfh-brand{display:flex;align-items:center;gap:10px;font-family:'Chakra Petch';font-weight:700;letter-spacing:.3em;font-size:13px}
 .pfh-brand img{width:38px;height:38px;object-fit:cover;mix-blend-mode:lighten;border-radius:6px}
