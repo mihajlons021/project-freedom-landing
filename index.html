@@ -306,7 +306,7 @@ to{opacity:1;text-shadow:0 0 10px var(--c1),0 0 20px var(--c1);}}
 .pfh-corner{position:absolute;width:28px;height:28px;border-color:var(--gn);border-style:solid;opacity:.7}
 .pfh-c1{top:86px;left:22px;border-width:2px 0 0 2px}.pfh-c2{top:86px;right:22px;border-width:2px 2px 0 0}
 .pfh-c3{bottom:22px;left:22px;border-width:0 0 2px 2px}.pfh-c4{bottom:22px;right:22px;border-width:0 2px 2px 0}
-.pfh-feed{top:100px;right:44px;padding:12px 16px;min-width:220px;background:rgba(5,4,9,.55);backdrop-filter:blur(8px);
+.pfh-feed{top:100px;right:44px;padding:12px 16px;min-width:220px;background:rgba(5,4,9,.82);
   border:1px solid rgba(124,255,46,.45);clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,14px 100%,0 calc(100% - 14px))}
 .pfh-feed b{color:var(--gn);font-weight:700}.pfh-feed p{color:var(--mute);margin-top:6px;line-height:1.5}
 .pfh-feed i{display:inline-block;width:8px;height:8px;border-radius:50%;background:#ff3b3b;box-shadow:0 0 10px #ff3b3b;margin-right:8px;animation:pfh-pfh-blink 1.2s steps(1) infinite}
@@ -322,7 +322,7 @@ to{opacity:1;text-shadow:0 0 10px var(--c1),0 0 20px var(--c1);}}
 
 /* ================= NAV ================= */
 .pfh-nav{position:absolute;z-index:10;top:18px;left:22px;right:22px;display:flex;align-items:center;gap:14px;padding:8px 10px 8px 12px;
-  background:rgba(8,6,14,.55);backdrop-filter:blur(14px) saturate(160%);border:1px solid rgba(255,255,255,.1);
+  background:rgba(8,6,14,.84);border:1px solid rgba(255,255,255,.1);
   clip-path:polygon(0 0,calc(100% - 18px) 0,100% 18px,100% 100%,18px 100%,0 calc(100% - 18px))}
 .pfh-brand{display:flex;align-items:center;gap:10px;font-family:'Chakra Petch';font-weight:700;letter-spacing:.3em;font-size:13px}
 .pfh-brand img{width:38px;height:38px;object-fit:cover;mix-blend-mode:lighten;border-radius:6px}
@@ -535,9 +535,6 @@ body{background:#050409}
 <section id="pf-hero" aria-label="Project Freedom — Strait of Hormuz">
   <div class="pfh-stage"><div class="pfh-scene" id="pfh-scene">
     <img src="/assets/pf/strait-hero.jpg" srcset="/assets/pf/strait-hero-mobile.jpg 1200w, /assets/pf/strait-hero.jpg 2400w" sizes="(max-width:900px) 1200px, 2400px" alt="Project Freedom warship 77 sailing through the Strait of Hormuz"/>
-    <img class="pfh-water" src="/assets/pf/strait-hero.jpg" alt=""/>
-    <img class="pfh-flag" src="/assets/pf/strait-hero.jpg" alt=""/>
-    <img class="pfh-flag2" src="/assets/pf/strait-hero.jpg" alt=""/>
     <canvas id="pfh-spray"></canvas>
   </div></div>
 
@@ -810,14 +807,27 @@ setInterval(()=>{document.getElementById('pfh-hdg').textContent=String(90+Math.r
 // ===================== HOLLYWOOD FX ENGINE =====================
 // Drawn on a canvas inside the scene, in artwork coordinates (0..1), so every blast sits on the right spot and sways with the ship.
 const stage=document.querySelector('.pfh-stage'),sc=document.getElementById('pfh-scene'),cv=document.getElementById('pfh-spray'),cx=cv.getContext('2d'),blast=document.getElementById('pfh-blast');
-let W=1,H=1;const DPR=Math.min(devicePixelRatio||1,1.5);
-function rs(){W=sc.clientWidth;H=sc.clientHeight;cv.width=W*DPR;cv.height=H*DPR;cx.setTransform(DPR,0,0,DPR,0,0)}rs();addEventListener('resize',rs);
+let W=1,H=1,DPR=1;
+// smoke and fire are soft: render at most ~1280px wide and let CSS stretch it (big screens were drawing 2-4x the pixels)
+function rs(){W=sc.clientWidth;H=sc.clientHeight;DPR=Math.min(devicePixelRatio||1,1,1280/Math.max(W,1));cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR);cx.setTransform(DPR,0,0,DPR,0,0)}rs();addEventListener('resize',rs);
+// pre-rendered soft sprites instead of a new gradient for every particle every frame
+function sprite(stops){const c=document.createElement('canvas');c.width=c.height=64;const g=c.getContext('2d'),r=g.createRadialGradient(32,32,0,32,32,32);stops.forEach(([o,col])=>r.addColorStop(o,col));g.fillStyle=r;g.fillRect(0,0,64,64);return c}
+const SMOKE=[40,110,170,215,240].map(d=>[d,sprite([[0,`rgba(${d},${d},${d+4},1)`],[1,`rgba(${d},${d},${d},0)`]])]);
+const smokeSpr=d=>{let b=SMOKE[0];for(const s of SMOKE)if(Math.abs(s[0]-d)<Math.abs(b[0]-d))b=s;return b[1]};
+const FIRE=sprite([[0,'rgba(255,245,210,1)'],[.35,'rgba(255,150,40,.8)'],[1,'rgba(160,30,0,0)']]);
+const FLASH=sprite([[0,'rgba(255,255,240,1)'],[.3,'rgba(255,170,70,.6)'],[1,'rgba(255,90,0,0)']]);
+const HEAD=sprite([[0,'rgba(255,250,230,1)'],[1,'rgba(255,140,40,0)']]);
+function blot(img,x,y,r,a){if(a<=0||r<=0)return;cx.globalAlpha=Math.min(a,1);cx.drawImage(img,x-r,y-r,r*2,r*2)}
+// run only while the hero is on screen and the tab is visible
+let onScreen=true;if('IntersectionObserver' in window)new IntersectionObserver(es=>{onScreen=es[0].isIntersecting;if(onScreen)wake()}).observe(stage);
+const live=()=>onScreen&&!document.hidden;let rafId=0;function wake(){if(!rafId)rafId=requestAnimationFrame(draw)}document.addEventListener('visibilitychange',()=>{if(!document.hidden)wake()});
+const CAP_S=260,CAP_A=520;
 const R=Math.random,rr=(a,b)=>a+R()*(b-a),U=()=>W/100;
 const S=[],A=[],M=[];let shakeP=0,light=0,lx=.5,ly=.5,lc='255,150,60';
 
-function smoke(x,y,s,o={}){S.push({x,y,r:s*rr(.6,1),g:s*rr(.006,.014),vx:rr(-.1,.3)+(o.vx||0),vy:rr(-.35,-.08)+(o.vy||0),a:o.a??rr(.35,.6),d:o.d??rr(25,55),l:1,dl:o.dl??rr(.002,.004)})}
-function fire(x,y,s){A.push({t:'f',x,y,r:s*rr(.5,1),vx:rr(-.6,.6),vy:rr(-1.1,-.2),l:1,dl:rr(.013,.028)})}
-function spark(x,y,sp,c){const a=R()*6.283,v=rr(.3,1)*sp;A.push({t:'s',x,y,px:x,py:y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-sp*.6,l:1,dl:rr(.01,.022),c:c||'255,200,110'})}
+function smoke(x,y,s,o={}){if(S.length>CAP_S)return;S.push({x,y,r:s*rr(.6,1),g:s*rr(.006,.014),vx:rr(-.1,.3)+(o.vx||0),vy:rr(-.35,-.08)+(o.vy||0),a:o.a??rr(.35,.6),d:o.d??rr(25,55),l:1,dl:o.dl??rr(.002,.004)})}
+function fire(x,y,s){if(A.length>CAP_A)return;A.push({t:'f',x,y,r:s*rr(.5,1),vx:rr(-.6,.6),vy:rr(-1.1,-.2),l:1,dl:rr(.013,.028)})}
+function spark(x,y,sp,c){if(A.length>CAP_A)return;const a=R()*6.283,v=rr(.3,1)*sp;A.push({t:'s',x,y,px:x,py:y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-sp*.6,l:1,dl:rr(.01,.022),c:c||'255,200,110'})}
 function flash(x,y,s,dl){A.push({t:'x',x,y,r:s,l:1,dl:dl||.06})}
 function lightUp(x,y,amt,c){light=Math.max(light,amt);lx=x;ly=y;lc=c||'255,150,60'}
 function shake(a){shakeP=Math.max(shakeP,a)}
@@ -851,40 +861,38 @@ function missile(){const t=R()<.6?[rr(.04,.12),rr(.42,.55)]:[rr(.52,.6),rr(.57,.
 function tracerBurst(){const src=R()<.5?[.03,rr(.38,.5)]:CIWS;const tx=rr(.15,.55),ty=rr(.08,.3);
   for(let i=0;i<14;i++)setTimeout(()=>launch(src,[tx+rr(-.03,.03),ty+rr(-.03,.03)],{type:'tracer',dur:rr(35,45),cx:(src[0]+tx)/2,cy:Math.min(src[1],ty)-.05}),i*70);}
 function distant(){const t=pick();explode(t[0],t[1],rr(.45,.85))}
-function loop(fn,a,b){(function go(){setTimeout(()=>{if(!document.hidden)fn();go()},rr(a,b))})()}
+function loop(fn,a,b){(function go(){setTimeout(()=>{if(live())fn();go()},rr(a,b))})()}
 setTimeout(()=>explode(.56,.585,1.2),700);setTimeout(mainGun,2200);setTimeout(missile,4200);
 loop(distant,2200,4200);loop(mainGun,6500,9500);loop(missile,11000,15000);loop(tracerBurst,3000,5500);
 // bow mist: soft, wide haze (no dots)
-setInterval(()=>{const u=U();smoke(rr(.04,.14)*W,rr(.76,.82)*H,u*rr(2,4),{d:235,a:rr(.1,.18),dl:.012,vx:-.6,vy:-.15})},90);
+setInterval(()=>{if(!live())return;const u=U();smoke(rr(.04,.14)*W,rr(.76,.82)*H,u*rr(2,4),{d:235,a:rr(.1,.18),dl:.012,vx:-.6,vy:-.15})},90);
 
-function draw(){cx.clearRect(0,0,W,H);
+function draw(){cx.setTransform(1,0,0,1,0,0);cx.clearRect(0,0,cv.width,cv.height);cx.setTransform(DPR,0,0,DPR,0,0);
   for(const p of S){p.x+=p.vx;p.y+=p.vy;p.r+=p.g;p.l-=p.dl;if(p.l<=0)continue;
-    const g=cx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r),d=p.d|0,a=p.a*p.l;
-    g.addColorStop(0,`rgba(${d},${d},${d+4},${a})`);g.addColorStop(1,`rgba(${d},${d},${d},0)`);cx.fillStyle=g;cx.beginPath();cx.arc(p.x,p.y,p.r,0,6.283);cx.fill()}
+    blot(p.s||(p.s=smokeSpr(p.d|0)),p.x,p.y,p.r,p.a*p.l)}cx.globalAlpha=1;
   for(let i=S.length-1;i>=0;i--)if(S[i].l<=0)S.splice(i,1);
   cx.globalCompositeOperation='lighter';
   for(const m of M){m.t++;const k=Math.min(m.t/m.dur,1),e=m.type==='missile'?k*k:k;
     const x=q(m.x0,m.cx,m.x1,e),y=q(m.y0,m.cy,m.y1,e);
     if(m.type==='missile'){const u=U();for(let i=0;i<2;i++)S.push({x:x+rr(-2,2),y:y+rr(-2,2),r:u*rr(.5,.9),g:u*.025,vx:rr(-.1,.1),vy:rr(-.05,.1),a:.45,d:rr(170,210),l:1,dl:.006});
       fire(x,y,u*1.1);cx.strokeStyle='rgba(255,230,180,.9)';cx.lineWidth=2.5;cx.beginPath();cx.moveTo(m.lx,m.ly);cx.lineTo(x,y);cx.stroke();
-      const g=cx.createRadialGradient(x,y,0,x,y,u*2.2);g.addColorStop(0,'rgba(255,250,230,1)');g.addColorStop(1,'rgba(255,140,40,0)');cx.fillStyle=g;cx.beginPath();cx.arc(x,y,u*2.2,0,6.283);cx.fill()}
+      blot(HEAD,x,y,u*2.2,1);cx.globalAlpha=1}
     else{const tl=m.type==='shell'?2:3;cx.strokeStyle=m.type==='shell'?'rgba(255,220,150,1)':'rgba(255,170,70,.95)';cx.lineWidth=m.type==='shell'?3:1.6;cx.beginPath();cx.moveTo(m.lx-(x-m.lx)*tl,m.ly-(y-m.ly)*tl);cx.lineTo(x,y);cx.stroke()}
     m.lx=x;m.ly=y;if(k>=1){m.done=1;m.end&&m.end()}}
   for(let i=M.length-1;i>=0;i--)if(M[i].done)M.splice(i,1);
   for(const p of A){p.l-=p.dl;if(p.l<=0)continue;
-    if(p.t==='f'){p.x+=p.vx;p.y+=p.vy;const r=p.r*(1.2-p.l*.4),g=cx.createRadialGradient(p.x,p.y,0,p.x,p.y,r);
-      g.addColorStop(0,`rgba(255,245,210,${p.l})`);g.addColorStop(.35,`rgba(255,150,40,${p.l*.8})`);g.addColorStop(1,'rgba(160,30,0,0)');cx.fillStyle=g;cx.beginPath();cx.arc(p.x,p.y,r,0,6.283);cx.fill()}
+    if(p.t==='f'){p.x+=p.vx;p.y+=p.vy;blot(FIRE,p.x,p.y,p.r*(1.2-p.l*.4),p.l);cx.globalAlpha=1}
     else if(p.t==='s'){p.px=p.x;p.py=p.y;p.x+=p.vx;p.y+=p.vy;p.vy+=.06;p.vx*=.985;cx.strokeStyle=`rgba(${p.c},${p.l})`;cx.lineWidth=1.6;cx.beginPath();cx.moveTo(p.px-(p.x-p.px)*2,p.py-(p.y-p.py)*2);cx.lineTo(p.x,p.y);cx.stroke()}
-    else if(p.t==='x'){const g=cx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r);g.addColorStop(0,`rgba(255,255,240,${p.l})`);g.addColorStop(.3,`rgba(255,170,70,${p.l*.6})`);g.addColorStop(1,'rgba(255,90,0,0)');cx.fillStyle=g;cx.beginPath();cx.arc(p.x,p.y,p.r,0,6.283);cx.fill()}
+    else if(p.t==='x'){blot(FLASH,p.x,p.y,p.r,p.l);cx.globalAlpha=1}
     else if(p.t==='w'){p.h-=p.vy;p.vy+=.035;cx.globalCompositeOperation='source-over';const hh=Math.max(p.h,0),g=cx.createLinearGradient(0,p.y-hh,0,p.y);
       g.addColorStop(0,'rgba(230,235,240,0)');g.addColorStop(.4,`rgba(230,235,240,${p.l*.5})`);g.addColorStop(1,`rgba(255,255,255,${p.l*.7})`);cx.fillStyle=g;cx.fillRect(p.x-p.w/2,p.y-hh,p.w,hh);cx.globalCompositeOperation='lighter'}}
   for(let i=A.length-1;i>=0;i--)if(A[i].l<=0)A.splice(i,1);
   cx.globalCompositeOperation='source-over';
   if(shakeP>.1){stage.style.translate=`${rr(-shakeP,shakeP)}px ${rr(-shakeP,shakeP)}px`;shakeP*=.86}else stage.style.translate='';
   if(light>.01){const r=cv.getBoundingClientRect(),hx=r.left+lx*r.width,hy=r.top+ly*r.height;
-    blast.style.background=`radial-gradient(circle at ${hx}px ${hy}px, rgba(${lc},${light}) 0%, rgba(${lc},${light*.35}) 22%, transparent 55%)`;light*=.9}else blast.style.background='none';
-  requestAnimationFrame(draw)}
-draw();
+    blast.style.background=`radial-gradient(circle at ${hx|0}px ${hy|0}px, rgba(${lc},${light.toFixed(2)}) 0%, rgba(${lc},${(light*.35).toFixed(2)}) 22%, transparent 55%)`;light*=.88;blastOn=1}else if(blastOn){blast.style.background='none';blastOn=0}
+  rafId=0;if(live())wake()}
+let blastOn=0;wake();
 })();</script>
 <script>(function(){
   // reveal on scroll
